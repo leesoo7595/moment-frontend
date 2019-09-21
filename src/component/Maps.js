@@ -2,8 +2,9 @@ import React, {useState} from 'react';
 import {GoogleMap, Marker, withGoogleMap, withScriptjs, InfoWindow} from 'react-google-maps'
 
 export const Maps = withScriptjs(withGoogleMap((props) => {
-    const {lat, lng, isMarkerShown, handleClickMap, markerText, zoom} = props;
+    const {lat, lng, isMarkerShown, handleClickMap, zoom, center, markerText} = props;
     const [open, setOpen] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
 
     const handleWindowOpen = () => {
         setOpen(true);
@@ -19,7 +20,7 @@ export const Maps = withScriptjs(withGoogleMap((props) => {
             defaultZoom={10}
             defaultCenter={{lat: 37.541, lng: 126.986}}
             zoom={zoom}
-            onCenterChanged={{lat, lng}}
+            center={center}
         >
             <Marker onClick={handleWindowOpen} position={{lat, lng}}>
                 {

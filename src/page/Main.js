@@ -33,32 +33,28 @@ export default function Main() {
     const [lat, setLat] = useState(0);
     const [lng, setLng] = useState(0);
     const [zoom, setZoom] = useState(10);
+    const [center, setCenter] = useState({lat: 37.541, lng: 126.986});
+    const [location, getLocation] = useState('');
 
     const handleChangeValue = value => {
         setValue(value);
     };
 
-    useEffect(() => {
-        getGeocodeByInputAddress(value);
-        if (value === '') {
-            setZoom(10);
-        }
-    }, [value]);
-
-
     function handleClickMap(e) {
         setLat(e.latLng.lat());
         setLng(e.latLng.lng());
+        setCenter({lat: e.latLng.lat(), lng: e.latLng.lng()});
         setZoom(16);
     }
 
-    function getGeocodeByInputAddress(value) {
+    function handleSelectInputAddress() {
         geocodeByAddress(value)
             .then(result => getLatLng(result[0]))
             .then(({lat, lng}) => {
                 setLat(lat);
                 setLng(lng);
                 setZoom(16);
+                setCenter({lat, lng});
                 console.log(lat, lng);
             })
             .catch(e => console.log(e));
@@ -89,8 +85,9 @@ export default function Main() {
     };
 
     return (
-        <Drawer searchBar={<SearchBar className={classes.searchBar} value={value} handleChangeValue={handleChangeValue} CustomizedInputBase={CustomizedInputBase}/>}>
-            <Maps isMarkerShown lat={lat} lng={lng} handleClickMap={handleClickMap} zoom={zoom}
+        <Drawer searchBar={<SearchBar className={classes.searchBar} value={value} handleChangeValue={handleChangeValue} CustomizedInputBase={CustomizedInputBase} handleSelect={handleSelectInputAddress}/>}>
+            <Maps isMarkerShown lat={lat} lng={lng} handleClickMap={handleClickMap} zoom={zoom} center={center}
+                  markerText={<MarkerText />}
                   googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${credentials["googleCloudPlatform"]["apiKey"]}&v=3.exp&libraries=geometry,drawing,places`}
                   loadingElement={<div style={{height: `100%`}}/>}
                   containerElement={<div style={{height: `940px`}}/>}
