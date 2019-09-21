@@ -3,7 +3,7 @@ import Button from "@material-ui/core/Button";
 import Modal from "./Modal";
 
 export default function MarkerText(props) {
-    const {lat, lng} = props;
+    const {address} = props;
     const [open, setOpen] = useState(false);
 
     const handleOpenModal = () => {
@@ -21,6 +21,7 @@ export default function MarkerText(props) {
 
     return (
         <>
+            <div>{address}</div>
             <Button color={"primary"} variant={"contained"} onClick={handleOpenModal}>
                 장소 등록하기</Button>
             {

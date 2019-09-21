@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import {geocodeByAddress, getLatLng} from "react-places-autocomplete";
+import Geocode from "react-geocode";
 
 import Drawer from '../component/Drawer';
 import {Maps} from '../component/Maps';
@@ -12,6 +13,8 @@ import IconButton from "@material-ui/core/IconButton";
 import SearchIcon from "@material-ui/core/SvgIcon/SvgIcon";
 import InputBase from "@material-ui/core/InputBase";
 import Divider from "@material-ui/core/Divider";
+
+Geocode.setApiKey(credentials["googleCloudPlatform"]["apiKey"]);
 
 const useStyles = makeStyles({
     search: {
@@ -29,12 +32,11 @@ const useStyles = makeStyles({
 export default function Main() {
     const classes = useStyles();
 
-    const [value, setValue] = useState('');
+    const [value, setValue] = useState("");
     const [lat, setLat] = useState(0);
     const [lng, setLng] = useState(0);
     const [zoom, setZoom] = useState(10);
     const [center, setCenter] = useState({lat: 37.541, lng: 126.986});
-    const [location, getLocation] = useState('');
 
     const handleChangeValue = value => {
         setValue(value);
@@ -46,6 +48,28 @@ export default function Main() {
         setCenter({lat: e.latLng.lat(), lng: e.latLng.lng()});
         setZoom(16);
     }
+
+    useEffect(() => {
+        Geocode.fromLatLng(lat, lng).then(
+            response => {
+                const address = response.results[0].formatted_address;
+                setValue(address);
+
+            },
+            error => {
+                console.error(error);
+            }
+        );
+    }, [lat, lng]);
+
+    useEffect(() => {
+        if (!value || value === "") {
+            setLat(0);
+            setLng(0);
+            setCenter({lat: 37.541, lng: 126.986});
+            setZoom(10);
+        }
+    }, [value]);
 
     function handleSelectInputAddress() {
         geocodeByAddress(value)
@@ -86,8 +110,8 @@ export default function Main() {
 
     return (
         <Drawer searchBar={<SearchBar className={classes.searchBar} value={value} handleChangeValue={handleChangeValue} CustomizedInputBase={CustomizedInputBase} handleSelect={handleSelectInputAddress}/>}>
-            <Maps isMarkerShown lat={lat} lng={lng} handleClickMap={handleClickMap} zoom={zoom} center={center}
-                  markerText={<MarkerText />}
+            <Maps isMarkerShown lat={lat} lng={lng} handleClickMap={handleClickMap} zoom={zoom} center={center} address={value}
+                  markerText={<MarkerText address={value} />}
                   googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${credentials["googleCloudPlatform"]["apiKey"]}&v=3.exp&libraries=geometry,drawing,places`}
                   loadingElement={<div style={{height: `100%`}}/>}
                   containerElement={<div style={{height: `940px`}}/>}
