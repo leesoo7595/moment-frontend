@@ -1,4 +1,9 @@
 import React, {useEffect, useState} from 'react';
+import Paper from "@material-ui/core/Paper";
+import IconButton from "@material-ui/core/IconButton";
+import SearchIcon from "@material-ui/core/SvgIcon/SvgIcon";
+import InputBase from "@material-ui/core/InputBase";
+import Divider from "@material-ui/core/Divider";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import {geocodeByAddress, getLatLng} from "react-places-autocomplete";
 import Geocode from "react-geocode";
@@ -6,13 +11,8 @@ import Geocode from "react-geocode";
 import Drawer from '../component/Drawer';
 import {Maps} from '../component/Maps';
 import SearchBar from "../component/SearchBar";
-import MarkerText from "../component/MarkerText";
+import CreateForm from "./CreateForm";
 import credentials from "../credentials/credentials"
-import Paper from "@material-ui/core/Paper";
-import IconButton from "@material-ui/core/IconButton";
-import SearchIcon from "@material-ui/core/SvgIcon/SvgIcon";
-import InputBase from "@material-ui/core/InputBase";
-import Divider from "@material-ui/core/Divider";
 
 Geocode.setApiKey(credentials["googleCloudPlatform"]["apiKey"]);
 
@@ -32,12 +32,25 @@ const useStyles = makeStyles({
 export default function Main() {
     const classes = useStyles();
 
+    const [cards, setCards] = useState([]);
     const [value, setValue] = useState("");
     const [lat, setLat] = useState(0);
     const [lng, setLng] = useState(0);
     const [zoom, setZoom] = useState(10);
     const [center, setCenter] = useState({lat: 37.541, lng: 126.986});
-    const [open, setOpen] = useState(false);
+
+    const handleGetCards = () => {
+        fetch('https://cors-anywhere.herokuapp.com/' + credentials["serverAddress"], {
+            method: "GET",
+            headers: {"Content-Type": "application/json"}
+        })
+            .then(res => res.json())
+            .then(cards => {
+                // const {title, category, date, address, img, text} = result;
+                setCards(cards);
+                console.log(cards);
+            }).catch(e => console.log(e));
+    };
 
     const handleChangeValue = value => {
         setValue(value);
@@ -49,6 +62,10 @@ export default function Main() {
         setCenter({lat: e.latLng.lat(), lng: e.latLng.lng()});
         setZoom(16);
     }
+
+    useEffect(() => {
+        handleGetCards();
+    }, []);
 
     useEffect(() => {
         Geocode.fromLatLng(lat, lng).then(
@@ -109,10 +126,14 @@ export default function Main() {
         );
     };
 
+    console.log("cards", cards);
+
     return (
-        <Drawer searchBar={<SearchBar className={classes.searchBar} value={value} handleChangeValue={handleChangeValue} CustomizedInputBase={CustomizedInputBase} handleSelect={handleSelectInputAddress}/>}>
+        <Drawer
+            searchBar={<SearchBar className={classes.searchBar} value={value} handleChangeValue={handleChangeValue} CustomizedInputBase={CustomizedInputBase} handleSelect={handleSelectInputAddress}/>}
+            cards={cards} >
             <Maps isMarkerShown lat={lat} lng={lng} handleClickMap={handleClickMap} zoom={zoom} center={center} value={value}
-                  markerText={<MarkerText value={value} />}
+                  markerText={<CreateForm value={value} />}
                   googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${credentials["googleCloudPlatform"]["apiKey"]}&v=3.exp&libraries=geometry,drawing,places`}
                   loadingElement={<div style={{height: `100%`}}/>}
                   containerElement={<div style={{height: `940px`}}/>}

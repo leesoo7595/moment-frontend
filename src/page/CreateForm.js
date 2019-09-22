@@ -1,11 +1,11 @@
 import React, {useState, useReducer} from 'react';
-import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
-import Box from "@material-ui/core/Box";
-import Grid from "@material-ui/core/Grid";
+import Button from "@material-ui/core/Button/index";
+import TextField from "@material-ui/core/TextField/index";
+import Box from "@material-ui/core/Box/index";
+import Grid from "@material-ui/core/Grid/index";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 
-import Modal from "./Modal";
+import Modal from "../component/Modal";
 
 const useStyles = makeStyles(theme => ({
     spacing: {
@@ -24,7 +24,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function MarkerText(props) {
+export default function CreateForm(props) {
     const {value} = props;
     const classes = useStyles();
 

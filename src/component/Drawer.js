@@ -1,7 +1,15 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import clsx from 'clsx';
+import Container from "@material-ui/core/Container";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import IconButton from "@material-ui/core/IconButton";
+import Typography from "@material-ui/core/Typography";
+import Drawer from "@material-ui/core/Drawer";
+import Divider from "@material-ui/core/Divider";
+import List from "@material-ui/core/List";
 import {makeStyles, useTheme} from '@material-ui/core/styles';
-import {Drawer, CssBaseline, AppBar, Toolbar, List, Typography, Divider, IconButton} from '@material-ui/core';
 import Card from "./Card";
 
 const drawerWidth = 500;
@@ -63,15 +71,10 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function PersistentDrawerLeft(props) {
-    const {children, searchBar} = props;
+    const {children, searchBar, cards} = props;
     const classes = useStyles();
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
-    const [cards, setCards] = useState([]);
-
-    useEffect(() => {
-        setCards([{title: "제목입니다", text: "text", img: "img"}, {title: "제목입니다", text: "text", img: "img"}])
-    }, []);
 
     function handleDrawerOpen() {
         setOpen(true);
@@ -80,9 +83,6 @@ export default function PersistentDrawerLeft(props) {
     function handleDrawerClose() {
         setOpen(false);
     }
-
-    console.log(cards);
-
 
     return (
         <div className={classes.root}>
@@ -126,8 +126,12 @@ export default function PersistentDrawerLeft(props) {
                 <Divider/>
                 <List>
                     {cards ? cards.map(e => {
-                        return <Card title={e["title"]} text={e["text"]} img={e["img"]}/>
-                    }) : null}
+                        return <Card key={e["text"]} title={e["title"]} text={e["text"]} img={e["img"]} address={e["address"]}
+                                category={e["category"]} date={e["date"]}/>
+                    }) : <Container>
+                        아직 등록된 이미지가 없습니다.
+                        위치를 찍어주세요.
+                    </Container>}
                 </List>
             </Drawer>
             <main

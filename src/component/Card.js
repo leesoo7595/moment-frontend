@@ -45,6 +45,7 @@ export default function MediaControlCard(props) {
                 <CardMedia
                     className={classes.cover}
                     image={img}
+                    src={img}
                     title={title}
                 />
             </div>
