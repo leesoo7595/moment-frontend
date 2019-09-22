@@ -33,7 +33,7 @@ export default function Main() {
     const classes = useStyles();
 
     const [cards, setCards] = useState([]);
-    const [value, setValue] = useState("");
+    const [address, setAddress] = useState("");
     const [lat, setLat] = useState(0);
     const [lng, setLng] = useState(0);
     const [zoom, setZoom] = useState(10);
@@ -52,8 +52,8 @@ export default function Main() {
             }).catch(e => console.log(e));
     };
 
-    const handleChangeValue = value => {
-        setValue(value);
+    const handleChangeAddress = value => {
+        setAddress(value);
     };
 
     function handleClickMap(e) {
@@ -71,7 +71,7 @@ export default function Main() {
         Geocode.fromLatLng(lat, lng).then(
             response => {
                 const address = response.results[0].formatted_address;
-                setValue(address);
+                setAddress(address);
 
             },
             error => {
@@ -81,16 +81,16 @@ export default function Main() {
     }, [lat, lng]);
 
     useEffect(() => {
-        if (!value || value === "") {
+        if (!address || address === "") {
             setLat(0);
             setLng(0);
             setCenter({lat: 37.541, lng: 126.986});
             setZoom(10);
         }
-    }, [value]);
+    }, [address]);
 
     function handleSelectInputAddress() {
-        geocodeByAddress(value)
+        geocodeByAddress(address)
             .then(result => getLatLng(result[0]))
             .then(({lat, lng}) => {
                 setLat(lat);
@@ -130,10 +130,10 @@ export default function Main() {
 
     return (
         <Drawer
-            searchBar={<SearchBar className={classes.searchBar} value={value} handleChangeValue={handleChangeValue} CustomizedInputBase={CustomizedInputBase} handleSelect={handleSelectInputAddress}/>}
+            searchBar={<SearchBar className={classes.searchBar} value={address} handleChangeValue={handleChangeAddress} CustomizedInputBase={CustomizedInputBase} handleSelect={handleSelectInputAddress}/>}
             cards={cards} >
-            <Maps isMarkerShown lat={lat} lng={lng} handleClickMap={handleClickMap} zoom={zoom} center={center} value={value}
-                  markerText={<CreateForm value={value} />}
+            <Maps isMarkerShown lat={lat} lng={lng} handleClickMap={handleClickMap} zoom={zoom} center={center} value={address}
+                  markerText={<CreateForm value={address} />}
                   googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${credentials["googleCloudPlatform"]["apiKey"]}&v=3.exp&libraries=geometry,drawing,places`}
                   loadingElement={<div style={{height: `100%`}}/>}
                   containerElement={<div style={{height: `940px`}}/>}

@@ -126,7 +126,7 @@ export default function PersistentDrawerLeft(props) {
                 <Divider/>
                 <List>
                     {cards ? cards.map(e => {
-                        return <Card key={e["text"]} title={e["title"]} text={e["text"]} img={e["img"]} address={e["address"]}
+                        return <Card title={e["title"]} text={e["text"]} img={e["img"]} address={e["address"]}
                                 category={e["category"]} date={e["date"]}/>
                     }) : <Container>
                         아직 등록된 이미지가 없습니다.

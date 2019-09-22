@@ -6,6 +6,7 @@ import Grid from "@material-ui/core/Grid/index";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 
 import Modal from "../component/Modal";
+import credentials from "../credentials/credentials";
 
 const useStyles = makeStyles(theme => ({
     spacing: {
@@ -43,7 +44,7 @@ export default function CreateForm(props) {
             case "reset":
                 return formState;
             case "imgFiles":
-                return {...form, files: action.value, img: Object.values(action.value).map((e, i) =>URL.createObjectURL(action.value[i]))};
+                return {...form, files: Object.values(action.value).map((e, i) => action.value[i]), img: Object.values(action.value).map((e, i) =>URL.createObjectURL(action.value[i]))};
             default:
                 return {...form, [action.name]: action.value}
         }
@@ -70,10 +71,19 @@ export default function CreateForm(props) {
 
     const handleSubmit = e => {
         e.preventDefault();
-        console.log("DB에 보내기");
+        const data = new FormData(e.currentTarget);
+        data.set("files", files);
+        for (let e of data) {
+            console.log(e);
+        }
+        console.log(data);
+        // fetch('https://cors-anywhere.herokuapp.com/' + credentials["serverAddress"], {
+        //     method: "POST",
+        //     body: data
+        // })
+        //     .then()
     };
 
-    console.log("files : " + files,"img : " +  img);
     return (
         <>
             <div>{address}</div>
@@ -91,7 +101,7 @@ export default function CreateForm(props) {
                                     <TextField fullWidth id={"category"} name={"category"} label={"종류"} value={category}/>
                                 </Grid>
                                 <Grid item xs={4}>
-                                    <TextField fullWidth type={"date"} id={"date"} name={"date"} label={"날짜"} value={date}  defaultValue={"2017-05-24"} />
+                                    <TextField fullWidth type={"date"} id={"date"} name={"date"} label={"날짜"} value={date} />
                                 </Grid>
                             </Grid>
                             <Grid container alignItems={"center"}>
