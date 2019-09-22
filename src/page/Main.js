@@ -37,6 +37,7 @@ export default function Main() {
     const [lng, setLng] = useState(0);
     const [zoom, setZoom] = useState(10);
     const [center, setCenter] = useState({lat: 37.541, lng: 126.986});
+    const [open, setOpen] = useState(false);
 
     const handleChangeValue = value => {
         setValue(value);
@@ -110,8 +111,8 @@ export default function Main() {
 
     return (
         <Drawer searchBar={<SearchBar className={classes.searchBar} value={value} handleChangeValue={handleChangeValue} CustomizedInputBase={CustomizedInputBase} handleSelect={handleSelectInputAddress}/>}>
-            <Maps isMarkerShown lat={lat} lng={lng} handleClickMap={handleClickMap} zoom={zoom} center={center} address={value}
-                  markerText={<MarkerText address={value} />}
+            <Maps isMarkerShown lat={lat} lng={lng} handleClickMap={handleClickMap} zoom={zoom} center={center} value={value}
+                  markerText={<MarkerText value={value} />}
                   googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${credentials["googleCloudPlatform"]["apiKey"]}&v=3.exp&libraries=geometry,drawing,places`}
                   loadingElement={<div style={{height: `100%`}}/>}
                   containerElement={<div style={{height: `940px`}}/>}
