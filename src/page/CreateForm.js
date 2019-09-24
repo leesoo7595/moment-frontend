@@ -5,8 +5,22 @@ import Box from "@material-ui/core/Box/index";
 import Grid from "@material-ui/core/Grid/index";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 
+import Message from "../component/Message";
+import Progress from "../component/CircularProgress";
 import Modal from "../component/Modal";
 import credentials from "../credentials/credentials";
+
+const _id = (() => {
+    let currentId = 0;
+    const map = new WeakMap();
+
+    return (object) => {
+        if (!map.has(object)) {
+            map.set(object, ++currentId);
+        }
+        return map.get(object);
+    }
+})();
 
 const useStyles = makeStyles(theme => ({
     spacing: {
@@ -35,7 +49,7 @@ export default function CreateForm(props) {
         address: value,
         text: "",
         date: "2019-10-01",
-        img: [],
+        imgUrl: [],
         files: [],
     };
 
@@ -43,16 +57,22 @@ export default function CreateForm(props) {
         switch (action.name) {
             case "reset":
                 return formState;
-            case "imgFiles":
-                return {...form, files: Object.values(action.value).map((e, i) => action.value[i]), img: Object.values(action.value).map((e, i) =>URL.createObjectURL(action.value[i]))};
+            case "img":
+                return {
+                    ...form,
+                    files: Object.values(action.value).map((e, i) => action.value[i]),
+                    imgUrl: Object.values(action.value).map((e, i) => URL.createObjectURL(action.value[i]))
+                };
             default:
                 return {...form, [action.name]: action.value}
         }
     };
 
     const [form, dispatch] = useReducer(reducer, formState);
-    const {title, category, address, text, date, img, files} = {...form};
+    const {title, category, address, text, date, imgUrl, files} = {...form};
     const [open, setOpen] = useState(false);
+    const [message, setMessage] = useState(false);
+    const [progress, setProgress] = useState(false);
 
     const handleChange = e => {
         const name = e.target.name;
@@ -66,7 +86,7 @@ export default function CreateForm(props) {
 
     const handleCloseModal = () => {
         setOpen(false);
-        dispatch({name:"reset"});
+        dispatch({name: "reset"});
     };
 
     const handleSubmit = e => {
@@ -77,11 +97,40 @@ export default function CreateForm(props) {
             console.log(e);
         }
         console.log(data);
-        // fetch('https://cors-anywhere.herokuapp.com/' + credentials["serverAddress"], {
-        //     method: "POST",
-        //     body: data
-        // })
-        //     .then()
+        setProgress(true);
+        fetch('https://cors-anywhere.herokuapp.com/' + credentials["serverAddress"], {
+            method: "POST",
+            body: data
+        })
+            .then(result => {
+                if (result.status < 200 || result.status >= 300) {
+                    setMessage({
+                        msg: "해당 URL 정보가 데이터베이스에 저장되지 못했습니다. \n There's something Error in Server",
+                        id: _id(e),
+                    });
+                    throw new Error("Cannot Save");
+                }
+                return result;
+            })
+            .then(() => {
+                setProgress(false);
+            })
+            .then(() => {
+                setMessage({
+                    msg: "해당 URL 정보가 데이터베이스에 성공적으로 저장되었습니다.",
+                    id: _id({}),
+                })
+            })
+            .then(() => {
+                dispatch({name: "reset"});
+                setOpen(false);
+            })
+            .catch(e => {
+                setMessage({
+                    msg: "해당 URL 정보가 데이터베이스에 저장되지 못했습니다. \n" + e,
+                    id: _id(e),
+                });
+            });
     };
 
     return (
@@ -98,34 +147,42 @@ export default function CreateForm(props) {
                                     <TextField fullWidth id={"title"} name={"title"} label={"이름"} value={title}/>
                                 </Grid>
                                 <Grid item xs={2} className={classes.spacing}>
-                                    <TextField fullWidth id={"category"} name={"category"} label={"종류"} value={category}/>
+                                    <TextField fullWidth id={"category"} name={"category"} label={"종류"}
+                                               value={category}/>
                                 </Grid>
                                 <Grid item xs={4}>
-                                    <TextField fullWidth type={"date"} id={"date"} name={"date"} label={"날짜"} value={date} />
+                                    <TextField fullWidth type={"date"} id={"date"} name={"date"} label={"날짜"}
+                                               value={date}/>
                                 </Grid>
                             </Grid>
                             <Grid container alignItems={"center"}>
                                 <Grid item xs={8}>
-                                    <TextField fullWidth id={"address"} name={"address"} label={"주소"} value={address} />
+                                    <TextField fullWidth id={"address"} name={"address"} label={"주소"} value={address}/>
                                 </Grid>
                                 <Grid item xs={3} className={classes.spacing}>
                                     <input
-                                        accept="image/*" className={classes.input} name={"imgFiles"} id={"contained-button-file"} multiple type="file"/>
+                                        accept="image/*" className={classes.input} name={"img"}
+                                        id={"contained-button-file"} multiple type="file"/>
                                     <label htmlFor="contained-button-file">
-                                        <Button variant="contained" color={"primary"} component="span" className={classes.button}>
+                                        <Button variant="contained" color={"primary"} component="span"
+                                                className={classes.button}>
                                             이미지 업로드
                                         </Button>
                                     </label>
-                                    <TextField name={"img"} type={"text"} style={{"display": "none"}} value={img}/>
+                                    <TextField name={"imgUrl"} type={"text"} style={{"display": "none"}}
+                                               value={imgUrl}/>
                                 </Grid>
                             </Grid>
-                            <TextField fullWidth id={"text"} name={"text"} label={"내용"} value={text} multiline rows={15} />
-                            {img && img.map(e => <img className={classes.img} src={e} alt=""/>)}
+                            <TextField fullWidth id={"text"} name={"text"} label={"내용"} value={text} multiline
+                                       rows={15}/>
+                            {imgUrl && imgUrl.map(e => <img className={classes.img} src={e} alt=""/>)}
                         </Box>
                         <Button type={"submit"} color={"primary"} variant={"contained"}>
                             저장
                         </Button>
                     </form>
+                    <Progress show={progress}/>
+                    <Message key={message.msg ? message.id : "none"} message={message}/>
                 </Modal>
             }
         </>
