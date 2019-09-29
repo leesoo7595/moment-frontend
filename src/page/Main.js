@@ -40,13 +40,13 @@ export default function Main() {
     const [center, setCenter] = useState({lat: 37.541, lng: 126.986});
 
     const handleGetCards = () => {
-        fetch('https://cors-anywhere.herokuapp.com/' + credentials["serverAddress"], {
+        fetch('/api', {
             method: "GET",
             headers: {"Content-Type": "application/json"}
         })
             .then(res => res.json())
             .then(cards => {
-                // const {title, category, date, address, img, text} = result;
+                // const {title, category, date, address, img, summary, text} = result;
                 setCards(cards);
                 console.log(cards);
             }).catch(e => console.log(e));

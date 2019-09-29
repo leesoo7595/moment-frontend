@@ -98,7 +98,7 @@ export default function CreateForm(props) {
         }
         console.log(data);
         setProgress(true);
-        fetch('https://cors-anywhere.herokuapp.com/' + credentials["serverAddress"], {
+        fetch('/api', {
             method: "POST",
             body: data
         })
