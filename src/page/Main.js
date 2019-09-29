@@ -46,7 +46,7 @@ export default function Main() {
         })
             .then(res => res.json())
             .then(cards => {
-                // const {title, category, date, address, img, summary, text} = result;
+                // const {title, category, date, address, img, summary, text, lat, lng} = result;
                 setCards(cards);
                 console.log(cards);
             }).catch(e => console.log(e));
@@ -126,14 +126,14 @@ export default function Main() {
         );
     };
 
-    console.log("cards", cards);
+    console.log("lat, lng", lat, lng);
 
     return (
         <Drawer
             searchBar={<SearchBar className={classes.searchBar} value={address} handleChangeValue={handleChangeAddress} CustomizedInputBase={CustomizedInputBase} handleSelect={handleSelectInputAddress}/>}
             cards={cards} >
-            <Maps isMarkerShown lat={lat} lng={lng} handleClickMap={handleClickMap} zoom={zoom} center={center} value={address}
-                  markerText={<CreateForm value={address} />}
+            <Maps isMarkerShown lat={lat} lng={lng} handleClickMap={handleClickMap} zoom={zoom} center={center} value={address} cards={cards}
+                  markerText={<CreateForm value={address} lat={lat} lng={lng}/>}
                   googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${credentials["googleCloudPlatform"]["apiKey"]}&v=3.exp&libraries=geometry,drawing,places`}
                   loadingElement={<div style={{height: `100%`}}/>}
                   containerElement={<div style={{height: `940px`}}/>}

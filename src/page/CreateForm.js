@@ -8,7 +8,6 @@ import makeStyles from "@material-ui/core/styles/makeStyles";
 import Message from "../component/Message";
 import Progress from "../component/CircularProgress";
 import Modal from "../component/Modal";
-import credentials from "../credentials/credentials";
 
 const _id = (() => {
     let currentId = 0;
@@ -40,13 +39,15 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function CreateForm(props) {
-    const {value} = props;
+    const {value, lat, lng} = props
+    console.log("createform", lat, lng);
     const classes = useStyles();
 
     const formState = {
         title: "",
         category: "",
         address: value,
+        summary: "",
         text: "",
         date: "2019-10-01",
         imgUrl: [],
@@ -69,7 +70,7 @@ export default function CreateForm(props) {
     };
 
     const [form, dispatch] = useReducer(reducer, formState);
-    const {title, category, address, text, date, imgUrl, files} = {...form};
+    const {title, category, address, summary, text, date, imgUrl, files} = {...form};
     const [open, setOpen] = useState(false);
     const [message, setMessage] = useState(false);
     const [progress, setProgress] = useState(false);
@@ -93,10 +94,11 @@ export default function CreateForm(props) {
         e.preventDefault();
         const data = new FormData(e.currentTarget);
         data.set("files", files);
+        data.set("lat", lat);
+        data.set("lng", lng);
         for (let e of data) {
             console.log(e);
         }
-        console.log(data);
         setProgress(true);
         fetch('/api', {
             method: "POST",
@@ -173,6 +175,7 @@ export default function CreateForm(props) {
                                                value={imgUrl}/>
                                 </Grid>
                             </Grid>
+                            <TextField fullWidth id={"summary"} name={"summary"} label={"한 줄 정리"} value={summary} multiline />
                             <TextField fullWidth id={"text"} name={"text"} label={"내용"} value={text} multiline
                                        rows={15}/>
                             {imgUrl && imgUrl.map(e => <img className={classes.img} src={e} alt=""/>)}
