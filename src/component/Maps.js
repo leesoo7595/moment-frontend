@@ -1,19 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import {GoogleMap, Marker, withGoogleMap, withScriptjs, InfoWindow} from 'react-google-maps'
+import MarkerWithInfoWindow from './MarkerWithInfoWindow';
+import Form from "../page/Form";
+import blueMarker from "../img/blue-dot.png";
 
 export const Maps = withScriptjs(withGoogleMap((props) => {
-    const {lat, lng, isMarkerShown, handleClickMap, zoom, center, markerText, value, cards} = props;
-    const [open, setOpen] = useState(false);
+    const {lat, lng, handleClickMap, zoom, center, cards, address} = props;
 
-    const handleWindowOpen = () => {
-        setOpen(true);
-    };
-
-    const handleWindowClose = () => {
-        setOpen(false);
-    };
-
-    console.log(cards);
     return (
         <GoogleMap
             onClick={handleClickMap}
@@ -22,22 +15,16 @@ export const Maps = withScriptjs(withGoogleMap((props) => {
             zoom={zoom}
             center={center}
         >
-            <Marker onClick={handleWindowOpen} position={{lat, lng}}>
-                {
-                    open && value && <InfoWindow onCloseClick={handleWindowClose} position={{lat, lng}}>
-                        {markerText}
-                    </InfoWindow>
-                }
-            </Marker>
+            <MarkerWithInfoWindow position={{lat, lng}}>
+                {/*{children}*/}
+                {<Form create={true} value={address}/>}
+            </MarkerWithInfoWindow>
             {
                 cards ? cards.map(e => {
-                    return <Marker  position={{lat: e.lat, lng: e.lng}}>
-                        {
-                            open && <InfoWindow onCloseClick={handleWindowClose} position={{lat: e.lat, lng: e.lng}}>
-                                {markerText}
-                            </InfoWindow>
-                        }
-                    </Marker>
+                    return <MarkerWithInfoWindow icon={blueMarker} position={{lat: e.lat, lng: e.lng}}>
+                        {/*{children}*/}
+                        {<Form create={false} value={e.address} />}
+                    </MarkerWithInfoWindow>
                 }) : null
             }
         </GoogleMap>

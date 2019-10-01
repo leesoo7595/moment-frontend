@@ -38,9 +38,8 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function CreateForm(props) {
-    const {value, lat, lng} = props
-    console.log("createform", lat, lng);
+export default function Form(props) {
+    const {value, lat, lng, create} = props;
     const classes = useStyles();
 
     const formState = {
@@ -139,7 +138,7 @@ export default function CreateForm(props) {
         <>
             <div>{address}</div>
             <Button color={"primary"} variant={"contained"} onClick={handleOpenModal}>
-                장소 등록하기</Button>
+                {create ? "장소 등록하기" : "장소 수정하기"}</Button>
             {
                 open && <Modal open={open} handleClose={handleCloseModal}>
                     <form onSubmit={handleSubmit} onChange={handleChange}>

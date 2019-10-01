@@ -8,13 +8,11 @@ import makeStyles from "@material-ui/core/styles/makeStyles";
 import {geocodeByAddress, getLatLng} from "react-places-autocomplete";
 import Geocode from "react-geocode";
 
+import Form from "./Form";
 import Drawer from '../component/Drawer';
 import {Maps} from '../component/Maps';
 import SearchBar from "../component/SearchBar";
-import CreateForm from "./CreateForm";
-import credentials from "../credentials/credentials"
-
-Geocode.setApiKey(credentials["googleCloudPlatform"]["apiKey"]);
+import credentials from "../credentials/credentials";
 
 const useStyles = makeStyles({
     search: {
@@ -64,6 +62,7 @@ export default function Main() {
     }
 
     useEffect(() => {
+        Geocode.setApiKey(credentials["googleCloudPlatform"]["apiKey"]);
         handleGetCards();
     }, []);
 
@@ -126,18 +125,16 @@ export default function Main() {
         );
     };
 
-    console.log("lat, lng", lat, lng);
-
     return (
         <Drawer
             searchBar={<SearchBar className={classes.searchBar} value={address} handleChangeValue={handleChangeAddress} CustomizedInputBase={CustomizedInputBase} handleSelect={handleSelectInputAddress}/>}
             cards={cards} >
-            <Maps isMarkerShown lat={lat} lng={lng} handleClickMap={handleClickMap} zoom={zoom} center={center} value={address} cards={cards}
-                  markerText={<CreateForm value={address} lat={lat} lng={lng}/>}
-                  googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${credentials["googleCloudPlatform"]["apiKey"]}&v=3.exp&libraries=geometry,drawing,places`}
+            <Maps isMarkerShown lat={lat} lng={lng} handleClickMap={handleClickMap} zoom={zoom} center={center} address={address} cards={cards}
+                  googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${credentials.googleCloudPlatform.apiKey}&v=3.exp&libraries=geometry,drawing,places`}
                   loadingElement={<div style={{height: `100%`}}/>}
                   containerElement={<div style={{height: `940px`}}/>}
-                  mapElement={<div style={{height: `100%`}}/>}/>
+                  mapElement={<div style={{height: `100%`}}/>} />
+                {/*<Form />*/}
         </Drawer>
     )
 }
