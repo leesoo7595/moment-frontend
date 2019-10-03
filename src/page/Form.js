@@ -141,6 +141,7 @@ export default function Form(props) {
             })
             .then(() => {
                 setProgress(false);
+                setOpen(false);
             })
             .then(() => {
                 setMessage({
@@ -150,7 +151,7 @@ export default function Form(props) {
             })
             .then(() => {
                 dispatch({name: "reset"});
-                setOpen(false);
+                return handleGetData();
             })
             .catch(e => {
                 setMessage({
@@ -203,7 +204,7 @@ export default function Form(props) {
                             <TextField fullWidth id={"summary"} name={"summary"} label={"한 줄 정리"} value={summary} multiline />
                             <TextField fullWidth id={"text"} name={"text"} label={"내용"} value={text} multiline
                                        rows={15}/>
-                            {imgUrl && imgUrl.map(e => <img className={classes.img} src={e} alt=""/>)}
+                            {imgUrl && imgUrl.map((e, i) => <img key={i} className={classes.img} src={e} alt=""/>)}
                         </Box>
                         <Button type={"submit"} color={"primary"} variant={"contained"}>
                             저장

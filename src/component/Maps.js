@@ -17,13 +17,13 @@ export const Maps = withScriptjs(withGoogleMap((props) => {
         >
             <MarkerWithInfoWindow position={{lat, lng}}>
                 {/*{children}*/}
-                {<Form create={true} value={address}/>}
+                {<Form create={true} value={address} lat={lat} lng={lng}/>}
             </MarkerWithInfoWindow>
             {
                 cards ? cards.map((e) => (
                     <MarkerWithInfoWindow key={e.id} i={e.id} icon={blueMarker} position={{lat: parseFloat(e.lat), lng: parseFloat(e.lng)}}>
                         {/*{children}*/}
-                        {<Form create={false} value={e.address} />}
+                        {<Form create={false} value={e.address} lat={parseFloat(e.lat)} lng={parseFloat(e.lng)}/>}
                     </MarkerWithInfoWindow>
                 )) : null
             }
