@@ -81,12 +81,38 @@ export default function Form(props) {
     };
 
     const handleOpenModal = () => {
-        setOpen(true);
+        if (create) return setOpen(true);
+        handleGetData();
+        return setOpen(true);
+
     };
 
     const handleCloseModal = () => {
         setOpen(false);
         dispatch({name: "reset"});
+    };
+
+    const handleGetData = () => {
+        fetch(`/api?address=${value}`, {
+            method: "GET",
+            headers: {"Content-Type": "application/json"},
+        })
+            .then(data => data.json())
+            .then(res => {
+                const {title, category, summary, text, date, img} = res;
+                const values = {title, category, summary, text, date, imgUrl: img};
+                Object.entries(values).map(([k, v]) => {
+                    isNull(v || k)
+                        ? dispatch({name: k, value: formState[k]})
+                        : dispatch({name: k, value: v})
+                });
+                dispatch({name: "file", value: ""})
+            }).catch(e => {
+            setMessage({
+                msg: "해당 URL 정보를 불러오지 못하였습니다. \n" + e,
+                id: _id(e),
+            });
+        });
     };
 
     const handleSubmit = e => {
@@ -189,4 +215,8 @@ export default function Form(props) {
             }
         </>
     )
+}
+
+function isNull(value) {
+    return value === undefined || value === null || value === "" || value === "undefined" || value === "null";
 }

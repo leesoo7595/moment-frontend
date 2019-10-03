@@ -62,7 +62,7 @@ export default function Main() {
     }
 
     useEffect(() => {
-        Geocode.setApiKey(credentials["googleCloudPlatform"]["apiKey"]);
+        Geocode.setApiKey(credentials.googleCloudPlatform.apiKey);
         handleGetCards();
     }, []);
 
