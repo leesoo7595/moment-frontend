@@ -106,7 +106,7 @@ export default function Form(props) {
                         ? dispatch({name: k, value: formState[k]})
                         : dispatch({name: k, value: v})
                 });
-                dispatch({name: "file", value: ""})
+                dispatch({name: "files", value: ""})
             }).catch(e => {
             setMessage({
                 msg: "해당 URL 정보를 불러오지 못하였습니다. \n" + e,

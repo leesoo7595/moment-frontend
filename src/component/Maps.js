@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {GoogleMap, Marker, withGoogleMap, withScriptjs, InfoWindow} from 'react-google-maps'
+import React from 'react';
+import {GoogleMap, withGoogleMap, withScriptjs} from 'react-google-maps'
 import MarkerWithInfoWindow from './MarkerWithInfoWindow';
 import Form from "../page/Form";
 import blueMarker from "../img/blue-dot.png";
@@ -20,12 +20,12 @@ export const Maps = withScriptjs(withGoogleMap((props) => {
                 {<Form create={true} value={address}/>}
             </MarkerWithInfoWindow>
             {
-                cards ? cards.map(e => {
-                    return <MarkerWithInfoWindow icon={blueMarker} position={{lat: e.lat, lng: e.lng}}>
+                cards ? cards.map((e) => (
+                    <MarkerWithInfoWindow key={e.id} i={e.id} icon={blueMarker} position={{lat: parseFloat(e.lat), lng: parseFloat(e.lng)}}>
                         {/*{children}*/}
                         {<Form create={false} value={e.address} />}
                     </MarkerWithInfoWindow>
-                }) : null
+                )) : null
             }
         </GoogleMap>
 

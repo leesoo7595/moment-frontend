@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {Marker, InfoWindow} from "react-google-maps";
 
 export default function MarkerWithInfoWindow(props) {
-    const {position, icon, create, children} = props;
+    const {i, position, icon, create, children} = props;
     const [open, setOpen] = useState(false);
 
     const handleWindowOpen = () => {
@@ -10,7 +10,7 @@ export default function MarkerWithInfoWindow(props) {
     };
 
     return (
-        <Marker position={position} onClick={handleWindowOpen} icon={icon}>
+        <Marker key={i} position={position} onClick={handleWindowOpen} icon={icon}>
             {open && <InfoWindow onCloseClick={handleWindowOpen}>
                 {children}
             </InfoWindow>}
