@@ -1,6 +1,5 @@
-import React from 'react';
+import React, {useState} from 'react';
 import clsx from 'clsx';
-import Container from "@material-ui/core/Container";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -8,15 +7,22 @@ import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
 import Drawer from "@material-ui/core/Drawer";
 import Divider from "@material-ui/core/Divider";
-import List from "@material-ui/core/List";
+import MenuIcon from '@material-ui/icons/Menu';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import AccountCircle from '@material-ui/icons/AccountCircle';
 import {makeStyles, useTheme} from '@material-ui/core/styles';
-import Card from "./Card";
+import MenuItem from "@material-ui/core/MenuItem";
+import Menu from "@material-ui/core/Menu";
 
 const drawerWidth = 500;
 
 const useStyles = makeStyles(theme => ({
     root: {
-        display: 'flex',
+        flexGrow: 1,
+    },
+    title: {
+        flexGrow: 1,
     },
     appBar: {
         transition: theme.transitions.create(['margin', 'width'], {
@@ -64,17 +70,24 @@ const useStyles = makeStyles(theme => ({
             duration: theme.transitions.duration.enteringScreen,
         }),
         marginLeft: 0,
-    },
-    container: {
-        padding: theme.spacing(4),
     }
 }));
 
 export default function PersistentDrawerLeft(props) {
-    const {children, searchBar, cards} = props;
+    const {children, searchBar, drawerList} = props;
     const classes = useStyles();
     const theme = useTheme();
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const menuOpen = Boolean(anchorEl);
+
+    const handleMenu = event => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
 
     function handleDrawerOpen() {
         setOpen(true);
@@ -93,7 +106,7 @@ export default function PersistentDrawerLeft(props) {
                     [classes.appBarShift]: open,
                 })}
             >
-                <Toolbar>
+                <Toolbar fullWidth>
                     <IconButton
                         color="inherit"
                         aria-label="open drawer"
@@ -101,11 +114,39 @@ export default function PersistentDrawerLeft(props) {
                         edge="start"
                         className={clsx(classes.menuButton, open && classes.hide)}
                     >
-                        >
+                        <MenuIcon />
                     </IconButton>
-                    <Typography variant="h6" noWrap>
+                    <Typography variant="h6" noWrap className={classes.title}>
                         Moment
                     </Typography>
+                    <div>
+                        <IconButton color="inherit"
+                                    aria-label="open profile"
+                                    onClick={handleMenu}
+                                    aria-haspopup="true"
+                                    edge="end"
+                        >
+                            <AccountCircle/>
+                        </IconButton>
+                        <Menu
+                            id="menu-appbar"
+                            anchorEl={anchorEl}
+                            anchorOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right',
+                            }}
+                            keepMounted
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right',
+                            }}
+                            open={menuOpen}
+                            onClose={handleClose}
+                        >
+                            <MenuItem onClick={handleClose}>Profile</MenuItem>
+                            <MenuItem onClick={handleClose}>My account</MenuItem>
+                        </Menu>
+                    </div>
                     {searchBar}
                 </Toolbar>
             </AppBar>
@@ -120,19 +161,11 @@ export default function PersistentDrawerLeft(props) {
             >
                 <div className={classes.drawerHeader}>
                     <IconButton onClick={handleDrawerClose}>
-                        {theme.direction === 'ltr' ? "<" : ">"}
+                        {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
                     </IconButton>
                 </div>
                 <Divider/>
-                <List>
-                    {cards ? cards.map(e => {
-                        return <Card key={e["img"][0]} title={e["title"]} summary={e["summary"]} text={e["text"]} img={e["img"][0]} address={e["address"]}
-                                category={e["category"]} date={e["date"]}/>
-                    }) : <Container>
-                        아직 등록된 이미지가 없습니다.
-                        위치를 찍어주세요.
-                    </Container>}
-                </List>
+                {drawerList}
             </Drawer>
             <main
                 className={clsx(classes.content, {

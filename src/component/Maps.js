@@ -21,11 +21,17 @@ export const Maps = withScriptjs(withGoogleMap((props) => {
             </MarkerWithInfoWindow>
             {
                 cards ? cards.map((e) => (
-                    <MarkerWithInfoWindow key={e.id} i={e.id} icon={blueMarker} position={{lat: parseFloat(e.lat), lng: parseFloat(e.lng)}}>
-                        {/*{children}*/}
-                        {<Form create={false} value={e.address} lat={parseFloat(e.lat)} lng={parseFloat(e.lng)}/>}
-                    </MarkerWithInfoWindow>
-                )) : null
+                        (e.lat === lat && e.lng === lng)
+                            ? <MarkerWithInfoWindow key={e.id} i={e.id} position={{lat, lng}}>
+                                {<Form create={false} value={e.address} lat={parseFloat(e.lat)} lng={parseFloat(e.lng)}/>}
+                            </MarkerWithInfoWindow>
+                            : <MarkerWithInfoWindow key={e.id} i={e.id} icon={blueMarker}
+                                                    position={{lat: parseFloat(e.lat), lng: parseFloat(e.lng)}}>
+                                {/*{children}*/}
+                                {<Form create={false} value={e.address} lat={parseFloat(e.lat)} lng={parseFloat(e.lng)}/>}
+                            </MarkerWithInfoWindow>
+                    )
+                ) : null
             }
         </GoogleMap>
 
