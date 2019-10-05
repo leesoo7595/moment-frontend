@@ -11,8 +11,22 @@ import Drawer from '../component/Drawer';
 import {Maps} from '../component/Maps';
 import SearchBar from "../component/SearchBar";
 import List from "./List";
+import Message from "../component/Message";
 import AddressContext from "../context/AddressContext";
 import credentials from "../credentials/credentials";
+import {auth} from "../credentials/firebase";
+
+const _id = (() => {
+    let currentId = 0;
+    const map = new WeakMap();
+
+    return (object) => {
+        if (!map.has(object)) {
+            map.set(object, ++currentId);
+        }
+        return map.get(object);
+    }
+})();
 
 const useStyles = makeStyles({
     search: {
@@ -36,18 +50,29 @@ export default function Main() {
     const [lng, setLng] = useState(0);
     const [zoom, setZoom] = useState(10);
     const [center, setCenter] = useState({lat: 37.541, lng: 126.986});
+    const [message, setMessage] = useState(false);
 
     const handleGetCards = () => {
-        fetch('/api', {
-            method: "GET",
-            headers: {"Content-Type": "application/json"}
-        })
-            .then(res => res.json())
-            .then(cards => {
-                // const {title, category, date, address, img, summary, text, lat, lng} = result;
-                setCards(cards);
-                console.log(cards);
-            }).catch(e => console.log(e));
+        auth.currentUser.getIdToken(true).then(idToken => {
+            const headers = new Headers();
+            headers.append("Authorization", idToken);
+            headers.append("Content-Type", "application/json");
+            fetch('/api', {
+                method: "GET",
+                headers: headers,
+            })
+                .then(res => res.json())
+                .then(cards => {
+                    // const {title, category, date, address, img, summary, text, lat, lng} = result;
+                    setCards(cards);
+                    // console.log(cards);
+                }).catch(e => {
+                setMessage({
+                    msg: "저장소에서 정보를 불러오지 못하였습니다. \n" + e,
+                    id: _id(e),
+                });
+            });
+        });
     };
 
     const handleChangeAddress = value => {
@@ -71,7 +96,6 @@ export default function Main() {
             response => {
                 const address = response.results[0].formatted_address;
                 setAddress(address);
-
             },
             error => {
                 console.error(error);
@@ -97,7 +121,7 @@ export default function Main() {
                 setLng(lng);
                 setZoom(16);
                 setCenter({lat, lng});
-                console.log(lat, lng);
+                // console.log(lat, lng);
             })
             .catch(e => console.log(e));
     }
@@ -129,8 +153,10 @@ export default function Main() {
     return (
         <AddressContext.Provider value={{setLat, setLng}}>
             <Drawer
-                searchBar={<SearchBar className={classes.searchBar} value={address} handleChangeValue={handleChangeAddress}
-                                      CustomizedInputBase={CustomizedInputBase} handleSelect={handleSelectInputAddress}/>}
+                searchBar={<SearchBar className={classes.searchBar} value={address}
+                                      handleChangeValue={handleChangeAddress}
+                                      CustomizedInputBase={CustomizedInputBase}
+                                      handleSelect={handleSelectInputAddress}/>}
                 drawerList={<List cards={cards}/>}>
                 <Maps isMarkerShown lat={lat} lng={lng} handleClickMap={handleClickMap} zoom={zoom} center={center}
                       address={address} cards={cards}

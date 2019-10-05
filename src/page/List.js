@@ -6,7 +6,7 @@ import List from "@material-ui/core/List";
 
 export default function DrawerList(props) {
     const {cards} = props;
-    console.log(cards);
+
     return <List>
         {cards ? cards.map(e => {
             return <Card key={e["img"][0]} title={e["title"]} summary={e["summary"]} text={e["text"]} img={e["img"][0]} address={e["address"]}

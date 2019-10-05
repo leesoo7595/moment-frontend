@@ -66,13 +66,13 @@ export default function MediaControlCard(props) {
     const classes = useStyles();
     const [expanded, setExpanded] = React.useState(false);
     const {setLat, setLng} = useAddress();
+
     const handleExpandClick = () => {
         setExpanded(!expanded);
     };
 
     const handleClick = e => {
         e.preventDefault();
-        console.log(lat, lng);
         setLat(lat);
         setLng(lng);
     };

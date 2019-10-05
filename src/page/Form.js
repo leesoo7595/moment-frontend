@@ -4,10 +4,10 @@ import TextField from "@material-ui/core/TextField/index";
 import Box from "@material-ui/core/Box/index";
 import Grid from "@material-ui/core/Grid/index";
 import makeStyles from "@material-ui/core/styles/makeStyles";
-
 import Message from "../component/Message";
 import Progress from "../component/CircularProgress";
 import Modal from "../component/Modal";
+import {auth} from "../credentials/firebase";
 
 const _id = (() => {
     let currentId = 0;
@@ -93,24 +93,29 @@ export default function Form(props) {
     };
 
     const handleGetData = () => {
-        fetch(`/api?address=${value}`, {
-            method: "GET",
-            headers: {"Content-Type": "application/json"},
-        })
-            .then(data => data.json())
-            .then(res => {
-                const {title, category, summary, text, date, img} = res;
-                const values = {title, category, summary, text, date, imgUrl: img};
-                Object.entries(values).map(([k, v]) => {
-                    isNull(v || k)
-                        ? dispatch({name: k, value: formState[k]})
-                        : dispatch({name: k, value: v})
+        auth.currentUser.getIdToken(true).then(idToken => {
+            const headers = new Headers();
+            headers.append("Authorization", idToken);
+            headers.append("Content-Type", "application/json");
+            fetch(`/api?address=${value}`, {
+                method: "GET",
+                headers: headers,
+            })
+                .then(data => data.json())
+                .then(res => {
+                    const {title, category, summary, text, date, img} = res;
+                    const values = {title, category, summary, text, date, imgUrl: img};
+                    Object.entries(values).map(([k, v]) => {
+                        isNull(v || k)
+                            ? dispatch({name: k, value: formState[k]})
+                            : dispatch({name: k, value: v})
+                    });
+                    dispatch({name: "files", value: ""})
+                }).catch(e => {
+                setMessage({
+                    msg: "해당 URL 정보를 불러오지 못하였습니다. \n" + e,
+                    id: _id(e),
                 });
-                dispatch({name: "files", value: ""})
-            }).catch(e => {
-            setMessage({
-                msg: "해당 URL 정보를 불러오지 못하였습니다. \n" + e,
-                id: _id(e),
             });
         });
     };
@@ -121,44 +126,49 @@ export default function Form(props) {
         data.set("files", files);
         data.set("lat", lat);
         data.set("lng", lng);
-        for (let e of data) {
-            console.log(e);
-        }
+        // for (let e of data) {
+        //     console.log(e);
+        // }
         setProgress(true);
-        fetch('/api', {
-            method: "POST",
-            body: data
-        })
-            .then(result => {
-                if (result.status < 200 || result.status >= 300) {
+        auth.currentUser.getIdToken(true).then(idToken => {
+            const headers = new Headers();
+            headers.append("Authorization", idToken);
+            fetch('/api', {
+                method: "POST",
+                headers: headers,
+                body: data
+            })
+                .then(result => {
+                    if (result.status < 200 || result.status >= 300) {
+                        setMessage({
+                            msg: "해당 URL 정보가 데이터베이스에 저장되지 못했습니다. \n There's something Error in Server",
+                            id: _id(e),
+                        });
+                        throw new Error("Cannot Save");
+                    }
+                    return result;
+                })
+                .then(() => {
+                    setProgress(false);
+                    setOpen(false);
+                })
+                .then(() => {
                     setMessage({
-                        msg: "해당 URL 정보가 데이터베이스에 저장되지 못했습니다. \n There's something Error in Server",
+                        msg: "해당 URL 정보가 데이터베이스에 성공적으로 저장되었습니다.",
+                        id: _id({}),
+                    })
+                })
+                .then(() => {
+                    dispatch({name: "reset"});
+                    return handleGetData();
+                })
+                .catch(e => {
+                    setMessage({
+                        msg: "해당 URL 정보가 데이터베이스에 저장되지 못했습니다. \n" + e,
                         id: _id(e),
                     });
-                    throw new Error("Cannot Save");
-                }
-                return result;
-            })
-            .then(() => {
-                setProgress(false);
-                setOpen(false);
-            })
-            .then(() => {
-                setMessage({
-                    msg: "해당 URL 정보가 데이터베이스에 성공적으로 저장되었습니다.",
-                    id: _id({}),
-                })
-            })
-            .then(() => {
-                dispatch({name: "reset"});
-                return handleGetData();
-            })
-            .catch(e => {
-                setMessage({
-                    msg: "해당 URL 정보가 데이터베이스에 저장되지 못했습니다. \n" + e,
-                    id: _id(e),
                 });
-            });
+        });
     };
 
     return (
@@ -185,7 +195,8 @@ export default function Form(props) {
                             </Grid>
                             <Grid container alignItems={"center"}>
                                 <Grid item xs={8}>
-                                    <TextField fullWidth id={"address"} name={"address"} label={"주소"} value={address}/>
+                                    <TextField fullWidth id={"address"} name={"address"} label={"주소"}
+                                               value={address}/>
                                 </Grid>
                                 <Grid item xs={3} className={classes.spacing}>
                                     <input
@@ -201,7 +212,8 @@ export default function Form(props) {
                                                value={imgUrl}/>
                                 </Grid>
                             </Grid>
-                            <TextField fullWidth id={"summary"} name={"summary"} label={"한 줄 정리"} value={summary} multiline />
+                            <TextField fullWidth id={"summary"} name={"summary"} label={"한 줄 정리"} value={summary}
+                                       multiline/>
                             <TextField fullWidth id={"text"} name={"text"} label={"내용"} value={text} multiline
                                        rows={15}/>
                             {imgUrl && imgUrl.map((e, i) => <img key={i} className={classes.img} src={e} alt=""/>)}
