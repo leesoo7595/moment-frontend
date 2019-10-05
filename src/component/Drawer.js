@@ -106,7 +106,7 @@ export default function PersistentDrawerLeft(props) {
                     [classes.appBarShift]: open,
                 })}
             >
-                <Toolbar fullWidth>
+                <Toolbar>
                     <IconButton
                         color="inherit"
                         aria-label="open drawer"

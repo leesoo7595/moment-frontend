@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {useState} from 'react';
 import clsx from "clsx";
-import {geocodeByAddress, getLatLng} from "react-places-autocomplete";
+import {Redirect} from "react-router-dom";
 import {makeStyles} from '@material-ui/core/styles/index';
 import Card from '@material-ui/core/Card/index';
 import CardContent from '@material-ui/core/CardContent/index';
@@ -15,7 +15,23 @@ import Avatar from "@material-ui/core/Avatar/index";
 import CardActions from "@material-ui/core/CardActions/index";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import ShareIcon from "@material-ui/icons/Share"
-import {useAddress} from "../context/AddressContext";
+import AddressContext, {useAddress} from "../context/AddressContext";
+import MenuItem from "@material-ui/core/MenuItem";
+import Menu from "@material-ui/core/Menu";
+import Message from "../component/Message";
+import {auth} from "../credentials/firebase";
+
+const _id = (() => {
+    let currentId = 0;
+    const map = new WeakMap();
+
+    return (object) => {
+        if (!map.has(object)) {
+            map.set(object, ++currentId);
+        }
+        return map.get(object);
+    }
+})();
 
 const useStyles = makeStyles(theme => ({
     card: {
@@ -59,12 +75,19 @@ const useStyles = makeStyles(theme => ({
     expandOpen: {
         transform: 'rotate(180deg)',
     },
+    favIcon: {
+        color: 'red'
+    },
 }));
 
 export default function MediaControlCard(props) {
     const {title, summary, text, img, address, date, lat, lng} = props;
     const classes = useStyles();
-    const [expanded, setExpanded] = React.useState(false);
+    const [expanded, setExpanded] = useState(false);
+    const [isFavor, setIsFavor] = useState(false);
+    const [openSettings, setOpenSettings] = useState(null);
+    const [message, setMessage] = useState({});
+    const [redirect, setRedirect] = useState(false);
     const {setLat, setLng} = useAddress();
 
     const handleExpandClick = () => {
@@ -77,9 +100,53 @@ export default function MediaControlCard(props) {
         setLng(lng);
     };
 
+    const onClickFavorIcon = () => {
+        setIsFavor(true);
+    };
+
+    const onClickOpenSettings = e => {
+        setOpenSettings(e.currentTarget);
+    };
+
+    const onCloseSettings = () => {
+        setOpenSettings(null);
+    };
+
+    const onDeleteCard = e => {
+        e.preventDefault();
+        auth.currentUser.getIdToken(true).then(idToken => {
+            const headers = new Headers();
+            headers.append("Authorization", idToken);
+            headers.append("Content-Type", "application/json");
+            fetch(`/api?address=${address}`, {
+                method: "DELETE",
+                headers: headers,
+            })
+                .then(res => {
+                    if (res.status === 200) {
+                        return setMessage({
+                            msg: "삭제하였습니다. \n",
+                            id: _id({}),
+                        });
+                    }
+                    return setMessage({
+                        msg: "삭제하지 못했습니다. \n",
+                        id: _id({}),
+                    })
+                })
+                .then(() => setRedirect(true))
+                .catch(e => console.log(e));
+        });
+    };
+
+    const onUpdateCard = e => {
+
+    };
+
     //ToDo R
+    // if (redirect) return (<Redirect to={"/"}/>);
     return (
-        <Card onClick={handleClick} className={classes.card}>
+        <Card key={`cards-${lat}-${lng}`} onClick={handleClick} className={classes.card}>
             <CardHeader
                 avatar={
                     <Avatar aria-label="recipe" className={classes.avatar}>
@@ -87,9 +154,25 @@ export default function MediaControlCard(props) {
                     </Avatar>
                 }
                 action={
-                    <IconButton aria-label="settings">
-                        <MoreVertIcon/>
-                    </IconButton>
+                    <div>
+                        <IconButton
+                            aria-controls={`cards-${lat}-${lng}`}
+                            onClick={onClickOpenSettings}
+                            aria-label="settings"
+                            aria-haspopup="true">
+                            <MoreVertIcon/>
+                        </IconButton>
+                        <Menu
+                            id={`cards-${lat}-${lng}`}
+                            anchorEl={openSettings}
+                            keepMounted
+                            open={Boolean(openSettings)}
+                            onClose={onCloseSettings}
+                        >
+                            <MenuItem onClick={onDeleteCard}>지우기</MenuItem>
+                            <MenuItem onClick={onUpdateCard}>수정하기</MenuItem>
+                        </Menu>
+                    </div>
                 }
                 title={title}
                 subheader={date}
@@ -99,8 +182,11 @@ export default function MediaControlCard(props) {
                     {summary}</Typography>
             </CardContent>
             <CardActions disableSpacing>
-                <IconButton aria-label="add to favorites">
-                    <FavoriteIcon/>
+                <IconButton
+                    aria-label="add to favorites"
+                    className={clsx(isFavor && classes.favIcon)}
+                    onClick={onClickFavorIcon}>
+                    <FavoriteIcon />
                 </IconButton>
                 <IconButton aria-label="share">
                     <ShareIcon/>
@@ -130,6 +216,7 @@ export default function MediaControlCard(props) {
                     </Typography>
                 </CardContent>
             </Collapse>
+            <Message key={message.msg ? message.id : "none"} message={message}/>
         </Card>
     );
 }

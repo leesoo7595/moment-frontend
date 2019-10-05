@@ -110,10 +110,9 @@ export default function Main() {
             setCenter({lat: 37.541, lng: 126.986});
             setZoom(10);
         }
-        handleSelectInputAddress(address);
     }, [address]);
 
-    function handleSelectInputAddress(address) {
+    function handleSelectInputAddress() {
         geocodeByAddress(address)
             .then(result => getLatLng(result[0]))
             .then(({lat, lng}) => {
@@ -156,7 +155,8 @@ export default function Main() {
                 searchBar={<SearchBar className={classes.searchBar} value={address}
                                       handleChangeValue={handleChangeAddress}
                                       CustomizedInputBase={CustomizedInputBase}
-                                      handleSelect={handleSelectInputAddress}/>}
+                                      handleSelect={handleSelectInputAddress}>
+                </SearchBar>}
                 drawerList={<List cards={cards}/>}>
                 <Maps isMarkerShown lat={lat} lng={lng} handleClickMap={handleClickMap} zoom={zoom} center={center}
                       address={address} cards={cards}
@@ -166,6 +166,7 @@ export default function Main() {
                       mapElement={<div style={{height: `100%`}}/>}/>
                 {/*<Form />*/}
             </Drawer>
+            <Message key={message.msg ? message.id : "none"} message={message}/>
         </AddressContext.Provider>
     )
 }

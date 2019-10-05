@@ -9,7 +9,7 @@ export default function DrawerList(props) {
 
     return <List>
         {cards ? cards.map(e => {
-            return <Card key={e["img"][0]} title={e["title"]} summary={e["summary"]} text={e["text"]} img={e["img"][0]} address={e["address"]}
+            return <Card key={`card-${e.lat}-${e.lng}`}title={e["title"]} summary={e["summary"]} text={e["text"]} img={e["img"][0]} address={e["address"]}
                          category={e["category"]} date={e["date"]} lat={parseFloat(e.lat)} lng={parseFloat(e.lng)}/>
         }) : <Container>
             <Typography>
