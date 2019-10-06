@@ -8,6 +8,7 @@ you can make a special diary only for yourself.
 - ReactJS
 - Google Maps API
 - Material UI
+- Firebase Auth
 
 ## feature
 
@@ -26,11 +27,11 @@ you can make a special diary only for yourself.
 - [x] get all data list
 - [x] view first image
 - [ ] view all images
-- [ ] create form
+- [x] create form
 - [ ] update form
-- [ ] delete data
+- [x] delete data
 
 ### Auth Page
 
-- [ ] signup page
-- [ ] signin page
+- [x] signup page
+- [x] signin page
